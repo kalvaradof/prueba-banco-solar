@@ -114,7 +114,7 @@ http
 
         if (req.url == "/transferencias" && req.method === "GET") {
             try {
-                const registros = await registroTransferenciai();
+                const registros = await registroTransferencia();
                 res.end(JSON.stringify(registros));
             } catch (e) {
                 res.statusCode = 500;
