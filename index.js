@@ -1,7 +1,7 @@
 const http = require("http");
 // Paso 1
-const { agregarUsuario, consultarUsuarios, editarUsuario, eliminarUsuario } =
-    //, eliminarUsuario, realizarTransferencia, registroTransferencia } =
+const { agregarUsuario, consultarUsuarios, editarUsuario, eliminarUsuario, realizarTransferencia, registroTransferencia } =
+
     require("./consultas");
 const url = require("url");
 // Paso 2
@@ -54,7 +54,7 @@ http
                 res.end("Ocurrio un problema con el servidor" + e)
             }
         }
-        if (req.url.startsWith ("/usuario") && req.method == "PUT") {
+        if (req.url.startsWith("/usuario") && req.method == "PUT") {
             let body = "";
             let { id } = url.parse(req.url, true).query; //desde aqui sale el id no funciona como el nombre y balance
             req.on("data", (chunk) => {
@@ -76,7 +76,7 @@ http
                 }
             });
         }
-        
+
         if (req.url.startsWith("/usuario?id") && req.method == "DELETE") {
             try {
                 let { id } = url.parse(req.url, true).query;
@@ -87,41 +87,40 @@ http
                 res.end("Ocurrio un problema con el servidor" + e)
             }
         }
-        
-        // if ((req.url == "/transferencia" && req.method == "POST")) { 
-        //     let body = "";
-        //     req.on("data", (chunk) => {
-        //         body += chunk.toString;
-        //     });
-        //     req.on("end", async () => {
-        //         try{
-        //         const transferencia = JSON.parse(body)
-        //         const datos = [
-        //             datosJson.emisor, 
-        //             datosJson.receptor,
-        //             datosJson.monto,
-        //             fecha, //se pone una const por url?? ${dateFormat} ${timeFormat}*****formatDate
-        //         ]
-        //         const respuesta = await realizarTransferencia(datos);
-        //         res.statusCode = 201;
-        //         res.end(JSON.stringify(respuesta));
-        //}  catch (e) {
-            //res.statusCode = 500;
-            //res.end("Ocurrio un problema con el servidor" + e)
-        //}
-        //     });
-        // }
 
-        // if (req.url == "/transferencias" && req.method === "GET") { 
-        //    try{
-        //     const registros = await registroTransferencias();
-        //     res.end(JSON.stringify(registros));
-        //} catch (e) {
-            //res.statusCode = 500;
-            //res.end("Ocurrio un problema con el servidor" + e)
-        //}
-        
-        // } 
+        if ((req.url == "/transferencia" && req.method == "POST")) {
+            let body = "";
+            req.on("data", (chunk) => {
+                body += chunk;
+            });
+            req.on("end", async () => {
+                try {
+                    const datosJson = JSON.parse(body) //tiene que concordar con el llamado de las propiedades mas abajo
+                    const datos = [
+                        datosJson.emisor,
+                        datosJson.receptor,
+                        datosJson.monto,
+                        //new Date(), //al no colocarle nada en parentesis lo arroja solo
+                    ]
+                    const respuesta = await realizarTransferencia(datos);
+                    res.statusCode = 201;
+                    res.end(JSON.stringify(respuesta));
+                } catch (e) {
+                    res.statusCode = 500;
+                    res.end("Ocurrio un problema con el servidor" + e)
+                }
+            });
+        }
+
+        if (req.url == "/transferencias" && req.method === "GET") {
+            try {
+                const registros = await registroTransferenciai();
+                res.end(JSON.stringify(registros));
+            } catch (e) {
+                res.statusCode = 500;
+                res.end("Ocurrio un problema con el servidor" + e)
+            }
+        }
 
     })
     .listen(3000, () => console.log('servidor funcionando correctamente'));

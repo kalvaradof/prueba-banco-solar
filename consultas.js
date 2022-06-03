@@ -62,49 +62,47 @@ const eliminarUsuario = async (id) => {
         return error;
     }
 };
-//const realizarTransferencia= async (datos)=> {
-// const transferir = {
-//text: `INSERT INTO transferencias (emisor, receptor, monto, fecha) VALUES ($1, $2, $3, NOW()) RETURNING *`,
-//values, datos
-//};
+const realizarTransferencia = async (datos) => {
+    const transferir = {
+        text: `INSERT INTO transferencias (emisor, receptor, monto, fecha) VALUES ($1, $2, $3, NOW()) RETURNING *`,
+        values: datos
+    };
 
-// const datoEmisor = {
-//     text: `UPDATE usuarios SET balance = balance - $1 WHERE id = $2 RETURNING *`,
-//     values: [datos[2], datos[0]]
-// }
-// const datoReceptor = {
-//     text: `UPDATE usuarios SET balance = balance + $1 WHERE id = $2 RETURNING *`,
-//     values: [datos[2], datos[1]] ó [Number(values[2]), (values[1]), **** verificar
-// }
-//try{
-// await pool.query ("BEGIN");
-// await pool.query (realizarTransferencia)
-// await pool.query (datoEmisor);
-// await pool.query (datoReceptor);
-// await pool.query ("COMMIT")
-//}catch (e){
-   // await pool.query (ROLLBACK);
-   //trhow (e):
-//}
+    const datoEmisor = {
+        text: `UPDATE usuarios SET balance = balance - $1 WHERE id = $2 RETURNING * `,//los dolares van en funcion con el orden del values
+        values: [Number(datos[2]), (datos[0])],// monto=2 id emisor=0
+    };
+    const datoReceptor = {
+        text: `UPDATE usuarios SET balance = balance + $1 WHERE id = $2 RETURNING * `,//la numeracion es concordante con el 1er elemento de la pp values
+        values: [Number(datos[2]), (datos[1])],// 2=monto y 1= id receptor
+    }
+    try {
+        await pool.query("BEGIN");
+        await pool.query(transferir)
+        await pool.query(datoEmisor);
+        await pool.query(datoReceptor);
+        await pool.query("COMMIT")
+    } catch (e) {
+        await pool.query("ROLLBACK");
+        trhow(e);
+    };
+};
 
-//const registroTransferencia=async () => {
-//text: `SELECT * FROM transferencias`,
-//values:[Date (values[3]), Number(values[0]), (values[1]), (values[2]), ****(es necesario?)
-//rowMode: "array", ***
-//}
-// try {
-//     const result = await pool.query(query)
-//     return result.rows
-// } catch (error) {
-//     console.log(error.code)
-//     return error
-// }
+const registroTransferencia = async () => {
+    const consulta = {
+        text: `SELECT * FROM transferencias`,
+        rowMode: "array",
+    }
+    try {
+        const result = await pool.query(consulta)
+        return result.rows
+    } catch (error) {
+        console.log(error.code)
+        return error
+    };
+};
+module.exports = { agregarUsuario, consultarUsuarios, editarUsuario, eliminarUsuario, realizarTransferencia, registroTransferencia }
 
-//}
-
-
-module.exports = { agregarUsuario, consultarUsuarios, editarUsuario, eliminarUsuario }
-    //, realizarTransferencia, registroTransferencia };
 
 //Rutas :
 //● / GET: Devuelve la aplicación cliente disponible en el apoyo de la prueba.
